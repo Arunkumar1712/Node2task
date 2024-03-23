@@ -15,7 +15,7 @@ const mongoURI = process.env.MONGO_URL;
 // Asigning DBName
 let DBName = "Roombookingtask";
 
-const client = new MongoClient(mongoURI,{ useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(mongoURI);
 let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
 
