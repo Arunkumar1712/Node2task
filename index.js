@@ -11,7 +11,6 @@ app.use(express.json());
 const port = process.env.port;
 console.log(process.env.port);
 console.log(process.env.MONGO_URL);
-
 const MONGO_URL = process.env.MONGO_URL;
 // Asigning DBName
 let DBName = "Roombookingtask";
