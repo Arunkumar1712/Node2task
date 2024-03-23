@@ -11,11 +11,11 @@ app.use(express.json());
 const port = process.env.port;
 console.log(process.env.port);
 console.log(process.env.MONGO_URL);
-const MONGO_URL = process.env.MONGO_URL;
+const MONGOURL = process.env.MONGO_URL;
 // Asigning DBName
 let DBName = "Roombookingtask";
 
-const client = new MongoClient(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(MONGOURL,{ useNewUrlParser: true, useUnifiedTopology: true });
 let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
 
