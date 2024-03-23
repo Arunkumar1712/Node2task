@@ -8,8 +8,8 @@ const app = express();
 // middleware
 app.use(express.json());
 
-const port = process.env.port;
-console.log(process.env.port);
+const port = process.env.PORT; // Corrected
+console.log(process.env.PORT); // Corrected
 console.log(process.env.MONGO_URL);
 const MONGOURL = process.env.MONGO_URL;
 // Asigning DBName
@@ -29,6 +29,8 @@ async function createConnection() {
   return client;
 }
 createConnection(); //calling the function
+
+console.log(MONGOURL); // Log MongoDB connection string here
 
 //Function for displaying home
 app.get("/", function (req, res) {
