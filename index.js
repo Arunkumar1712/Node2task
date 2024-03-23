@@ -11,26 +11,29 @@ app.use(express.json());
 const port = process.env.PORT; // Corrected
 console.log(process.env.PORT); // Corrected
 console.log(process.env.MONGO_URL);
-const MONGOURL = process.env.MONGO_URL;
+const mongoURI = process.env.MONGO_URL;
 // Asigning DBName
 let DBName = "Roombookingtask";
 
-const client = new MongoClient(MONGOURL,{ useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(mongoURI,{ useNewUrlParser: true, useUnifiedTopology: true });
 let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
 
 // Function to conect MongoDB
 async function createConnection() {
+  try{
   await client.connect();
   const db = client.db(DBName);
   roomsdetails = db.collection("rooms");
   Bookingrecords = db.collection("Booking");
   console.log("mongodb is connected");
-  return client;
+  }catch (error){
+    console.error('Failed to connect to MongoDB:', error);
+  }
 }
 createConnection(); //calling the function
 
-console.log(MONGOURL); // Log MongoDB connection string here
+console.log(mongoURI); // Log MongoDB connection string here
 
 //Function for displaying home
 app.get("/", function (req, res) {
