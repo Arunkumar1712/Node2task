@@ -7,19 +7,20 @@ dotenv.config();
 const app = express();
 // middleware
 app.use(express.json());
+
 const port = process.env.port;
 console.log(process.env.port);
 console.log(process.env.MONGO_URL);
 
 const MONGO_URL = process.env.MONGO_URL;
-//"mongodb://localhost:27017"
+// Asigning DBName
 let DBName = "Roombookingtask";
 
 const client = new MongoClient(MONGO_URL);
-// Function to conect MongoDB
-
 let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
+
+// Function to conect MongoDB
 async function createConnection() {
   await client.connect();
   const db = client.db(DBName);
@@ -29,17 +30,17 @@ async function createConnection() {
   return client;
 }
 createConnection(); //calling the function
+
+//Function for displaying home
 app.get("/", function (req, res) {
   res.send(`
-     
-        <style>
+    <style>
           body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
           }
-  
           .container {
             max-width: 600px;
             margin: 50px auto;
@@ -48,29 +49,16 @@ app.get("/", function (req, res) {
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
           }
-  
           h1 {
             text-align: center;
             color: #333;
           }
-  
           h4 {
             margin-bottom: 10px;
             color: #666;
           }
-  
           p {
             color: #444;
-          }
-  
-          a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-          }
-  
-          a:hover {
-            text-decoration: underline;
           }
         </style>
       
@@ -82,20 +70,18 @@ app.get("/", function (req, res) {
           <h4>To get a available  Room Use "/availablerooms", add after the render link</h4>
           <h4>To Book a Room Use "/booking",add after the render link </h4>
           <h4>To list all booked rooms Use "/bookings",add after the render link</h4>
-           <h4>To get count of customers booked rooms Use "/customer-bookings",add after the render link</h4>
+          <h4>To get count of customers booked rooms Use "/customer-bookings",add after the render link</h4>
         </div>
       </body>
       
     `);
 });
-//- click <a href="/rooms">here</a>.</h4>
 
 // End point for creating the room
 app.post("/rooms", async function (req, res) {
   try {
     // Creating a Room with Number of Seats available, amenities in room, Price for 1 Hour
     const room = await roomsdetails.insertOne(req.body);
-    // const insertedroom = room.ops[0];
 
     // Constructing the HTML response
     const htmlResponse = `
@@ -108,8 +94,7 @@ app.post("/rooms", async function (req, res) {
               padding: 0;
               background-color: #f0f0f0;
             }
-
-            .container {
+.container {
               max-width: 600px;
               margin: 50px auto;
               padding: 20px;
@@ -117,38 +102,23 @@ app.post("/rooms", async function (req, res) {
               border-radius: 8px;
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-
-            h1 {
+h1 {
               text-align: center;
               color: #333;
             }
-
-            h4 {
+h4 {
               margin-bottom: 10px;
               color: #666;
             }
-
-            p {
+p {
               color: #444;
-            }
-
-            a {
-              text-decoration: none;
-              color: #007bff;
-              font-weight: bold;
-            }
-
-            a:hover {
-              text-decoration: underline;
             }
           </style>
         </head>
         <body>
           <div class="container">
             <h1>Room created successfully</h1>
-           
-    
-          </div>
+           </div>
         </body>
       </html>
     `;
@@ -161,7 +131,7 @@ app.post("/rooms", async function (req, res) {
   }
 });
 
-// end point to get available rooms
+// End point to get available rooms
 app.get("/availablerooms", async function (req, res) {
   try {
     // Retrieve all room details from the collection
@@ -170,14 +140,24 @@ app.get("/availablerooms", async function (req, res) {
     const htmlResponse = `
       <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f0f0;">
         <div class="container" style="max-width: 600px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-          ${allRooms.map(room => `
+          ${allRooms
+            .map(
+              (room) => `
             <div class="room" style="margin-bottom: 20px;">
-              <h2 style="text-align: center; color: #333;">${room.roomNumber}</h2>
-              <p style="color: #444;">Number of Seats: ${room.seatsAvailable}</p>
-              <p style="color: #444;">Amenities: ${room.amenities.join(', ')}</p>
+              <h2 style="text-align: center; color: #333;">${
+                room.roomNumber
+              }</h2>
+              <p style="color: #444;">Number of Seats: ${
+                room.seatsAvailable
+              }</p>
+              <p style="color: #444;">Amenities: ${room.amenities.join(
+                ", "
+              )}</p>
               <p style="color: #444;">Price per Hour: ${room.pricePerHour}</p>
             </div>
-          `).join('')}
+          `
+            )
+            .join("")}
         </div>
       </body>
     `;
@@ -189,10 +169,9 @@ app.get("/availablerooms", async function (req, res) {
   }
 });
 
-
 // End points for booking the room
 
-app.post("/booking", async function(req, res) {
+app.post("/booking", async function (req, res) {
   try {
     const { customerName, roomNumber, date, starttime, endtime } = req.body;
 
@@ -203,8 +182,8 @@ app.post("/booking", async function(req, res) {
       $or: [
         { starttime: { $lte: starttime }, endtime: { $gte: starttime } },
         { starttime: { $lte: endtime }, endtime: { $gte: endtime } },
-        { starttime: { $gte: starttime }, endtime: { $lte: endtime } }
-      ]
+        { starttime: { $gte: starttime }, endtime: { $lte: endtime } },
+      ],
     });
 
     if (existingBooking) {
@@ -220,12 +199,13 @@ app.post("/booking", async function(req, res) {
     }
   } catch (error) {
     console.error("Error booking room:", error);
-    res.status(500).send(`<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f0f0;">
+    res.status(
+      500
+    ).send(`<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f0f0;">
     <div class="container" style="max-width: 600px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
         <p style="color: red;">Failed to book room. Please try again later.</p>
     </div>
 </body>`);
-
   }
 });
 
@@ -239,7 +219,9 @@ app.get("/bookings", async function (req, res) {
     // Iterate over each room
     for (const room of allRooms) {
       // Find all bookings for the current room
-      const bookingsForRoom = await Bookingrecords.find({ roomNumber: room.roomNumber }).toArray();
+      const bookingsForRoom = await Bookingrecords.find({
+        roomNumber: room.roomNumber,
+      }).toArray();
 
       // Iterate over each booking for the current room
       for (const booking of bookingsForRoom) {
@@ -248,7 +230,7 @@ app.get("/bookings", async function (req, res) {
           CustomerName: booking.customerName,
           Date: booking.date,
           CheckinTime: booking.startTime,
-          CheckoutTime: booking.endTime
+          CheckoutTime: booking.endTime,
         });
       }
     }
@@ -258,7 +240,9 @@ app.get("/bookings", async function (req, res) {
       <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f0f0;">
         <div class="container" style="max-width: 600px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
           <h2 style="text-align: center; color: #333;">List of Booked Rooms</h2>
-          ${result.map(booking => `
+          ${result
+            .map(
+              (booking) => `
             <div class="booking" style="margin-bottom: 20px;">
               <h3 style="text-align: center; color: #666;">Room Number: ${booking.RoomNumber}</h3>
               <p style="color: #444;">Customer Name: ${booking.CustomerName}</p>
@@ -266,7 +250,9 @@ app.get("/bookings", async function (req, res) {
               <p style="color: #444;">Check-in Time: ${booking.CheckinTime}</p>
               <p style="color: #444;">Checkout Time: ${booking.CheckoutTime}</p>
             </div>
-          `).join('')}
+          `
+            )
+            .join("")}
         </div>
       </body>
     `;
@@ -288,7 +274,15 @@ app.get("/customer-bookings", async function (req, res) {
 
     // Iterate over each booking
     for (const booking of allBookings) {
-      const { customerName, roomNumber, date, startTime, endTime, bookingDate, _id } = booking;
+      const {
+        customerName,
+        roomNumber,
+        date,
+        startTime,
+        endTime,
+        bookingDate,
+        _id,
+      } = booking;
 
       // Construct a unique key for each customer-room combination
       const bookingKey = `${customerName}_${roomNumber}`;
@@ -299,7 +293,7 @@ app.get("/customer-bookings", async function (req, res) {
           CustomerName: customerName,
           RoomName: roomNumber,
           BookingCount: 0,
-          Bookings: []
+          Bookings: [],
         };
       }
 
@@ -313,7 +307,7 @@ app.get("/customer-bookings", async function (req, res) {
         StartTime: startTime,
         EndTime: endTime,
         BookingDate: bookingDate,
-        BookingStatus: "Booked" // Assuming all bookings are marked as "Booked"
+        BookingStatus: "Booked", // Assuming all bookings are marked as "Booked"
       });
     }
 
@@ -338,13 +332,20 @@ app.get("/customer-bookings", async function (req, res) {
       <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f0f0;">
         <div class="container" style="max-width: 800px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
           <h2 style="text-align: center; color: #333;">Customer Booking Summary</h2>
-          ${customerBookingsList.map(customerBooking => `
+          ${customerBookingsList
+            .map(
+              (customerBooking) => `
             <div class="customer-booking" style="margin-bottom: 20px;">
-              <h3 style="color: #666;">Customer Name: ${customerBooking.CustomerName}</h3>
+              <h3 style="color: #666;">Customer Name: ${
+                customerBooking.CustomerName
+              }</h3>
               <p style="color: #444;">Room Name: ${customerBooking.RoomName}</p>
-              <p style="color: #444;">Total Bookings: ${customerBooking.BookingCount}</p>
+              <p style="color: #444;">Total Bookings: ${
+                customerBooking.BookingCount
+              }</p>
               <h4 style="color: #888;">Bookings:</h4>
-              ${customerBooking.Bookings.map(booking => `
+              ${customerBooking.Bookings.map(
+                (booking) => `
                 <div class="booking" style="margin-left: 20px;">
                   <p style="color: #444;">Booking ID: ${booking.BookingId}</p>
                   <p style="color: #444;">Date: ${booking.Date}</p>
@@ -353,9 +354,12 @@ app.get("/customer-bookings", async function (req, res) {
                   <p style="color: #444;">Booking Date: ${booking.Date}</p>
                   <p style="color: #444;">Booking Status: ${booking.BookingStatus}</p>
                 </div>
-              `).join('')}
+              `
+              ).join("")}
             </div>
-          `).join('')}
+          `
+            )
+            .join("")}
         </div>
       </body>
     `;
