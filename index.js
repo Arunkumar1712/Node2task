@@ -1,5 +1,5 @@
 import express from "express";
-import { MongoClient } from "mongodb";
+// import { MongoClient } from "mongodb";
 import mongoose from "mongoose";
 import  dotenv from "dotenv";
 dotenv.config();
@@ -15,7 +15,7 @@ const MONGOURL = process.env.MONGO_URL;
 // Asigning DBName
 let DBName = "Roombookingtask";
 
-const client = new MongoClient(MONGOURL);
+// const client = new MongoClient(MONGOURL);
 let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
 app.listen(port, () => console.log("Server Started"));
@@ -35,14 +35,17 @@ app.listen(port, () => console.log("Server Started"));
 
 console.log(MONGOURL); // Log MongoDB connection string here
 
-mongoose.connect(MONGOURL).then(()=>{
-  const db = client.db(DBName);
-  roomsdetails = db.collection("rooms");
-  Bookingrecords = db.collection("Booking");
-  console.log("mongodb is connected");
-}).catch((error)=>{
-console.log(error,"error in connecting db")
-})
+mongoose.connect(MONGOURL, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+  console.log("MongoDB is connected");
+
+  // Accessing the database and collections
+  const db = mongoose.connection;
+  roomsdetails = db.collection("rooms"); // Access "rooms" collection
+  Bookingrecords = db.collection("Booking"); // Access "Booking" collection
+
+}).catch((error) => {
+  console.log("Error in connecting to MongoDB:", error);
+});
 
 
 
