@@ -1,7 +1,7 @@
 import express from "express";
 import { MongoClient } from "mongodb";
-
-import * as dotenv from "dotenv";
+import mongoose from "mongoose";
+import  dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
@@ -11,29 +11,51 @@ app.use(express.json());
 const port = process.env.PORT; // Corrected
 console.log(process.env.PORT); // Corrected
 console.log(process.env.MONGO_URL);
-const mongoURI = process.env.MONGO_URL;
+const MONGOURL = process.env.MONGO_URL;
 // Asigning DBName
 let DBName = "Roombookingtask";
 
-const client = new MongoClient(mongoURI);
+const client = new MongoClient(MONGOURL);
 let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
-
+app.listen(port, () => console.log("Server Started"));
 // Function to conect MongoDB
-async function createConnection() {
-  try{
-  await client.connect();
+// async function createConnection() {
+//   try{
+//   await client.connect();
+//   const db = client.db(DBName);
+//   roomsdetails = db.collection("rooms");
+//   Bookingrecords = db.collection("Booking");
+//   console.log("mongodb is connected");
+//   }catch (error){
+//     console.error('Failed to connect to MongoDB:', error);
+//   }
+// }
+// createConnection(); //calling the function
+
+console.log(MONGOURL); // Log MongoDB connection string here
+
+mongoose.connect(MONGOURL).then(()=>{
   const db = client.db(DBName);
   roomsdetails = db.collection("rooms");
   Bookingrecords = db.collection("Booking");
   console.log("mongodb is connected");
-  }catch (error){
-    console.error('Failed to connect to MongoDB:', error);
-  }
-}
-createConnection(); //calling the function
+}).catch((error)=>{
+console.log(error,"error in connecting db")
+})
 
-console.log(mongoURI); // Log MongoDB connection string here
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Function for displaying home
 app.get("/", function (req, res) {
@@ -375,4 +397,4 @@ app.get("/customer-bookings", async function (req, res) {
     res.status(500).send("Something went wrong 😞, please try again later");
   }
 });
-app.listen(port, () => console.log("Server Started"));
+
