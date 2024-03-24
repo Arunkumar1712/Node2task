@@ -20,33 +20,33 @@ let roomsdetails; // collection in db for rooms
 let Bookingrecords; //collection in db for Booking
 app.listen(port, () => console.log("Server Started"));
 // Function to conect MongoDB
-async function createConnection() {
-  try{
-  await client.connect();
-  const db = client.db(DBName);
-  roomsdetails = db.collection("rooms");
-  Bookingrecords = db.collection("Booking");
-  console.log("mongodb is connected");
-  }catch (error){
-    console.error('Failed to connect to MongoDB:', error);
-  }
-}
-createConnection(); //calling the function
+// async function createConnection() {
+//   try{
+//   await client.connect();
+//   const db = client.db(DBName);
+//   roomsdetails = db.collection("rooms");
+//   Bookingrecords = db.collection("Booking");
+//   console.log("mongodb is connected");
+//   }catch (error){
+//     console.error('Failed to connect to MongoDB:', error);
+//   }
+// }
+// createConnection(); //calling the function
 
-console.log(MONGOURL); // Log MongoDB connection string here
+console.log(MONGOURL); 
 
-// mongoose.connect(MONGOURL, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
-//   console.log("MongoDB is connected");
+mongoose.connect(MONGOURL, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+  console.log("MongoDB is connected");
 
-//   // Accessing the database and collections
-//   const db = mongoose.connection;
-//   roomsdetails = db.collection("rooms"); // Access "rooms" collection
-//   Bookingrecords = db.collection("Booking"); // Access "Booking" collection
+  // Accessing the database and collections
+  const db = mongoose.connection;
+  roomsdetails = db.collection("rooms"); // Access "rooms" collection
+  Bookingrecords = db.collection("Booking"); // Access "Booking" collection
 
-// }).catch((error) => {
-//   console.log("Error in connecting to MongoDB:", error);
-// });
-
+}).catch((error) => {
+  console.log("Error in connecting to MongoDB:", error);
+});
+ 
 
 
 
